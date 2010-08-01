@@ -61,6 +61,12 @@ class ZombieShotgunTest < Test::Unit::TestCase
 
   end
   
+  context 'With file' do
+    should 'kill contact.php' do
+      get '/contact.php'
+      assert_head_not_found
+    end
+  end
   
   
 

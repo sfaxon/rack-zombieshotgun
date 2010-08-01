@@ -26,13 +26,15 @@ module Rack
     ].freeze
 
     ZOMBIE_DIRS = ['_vti_bin','MSOffice','verify-VCNstrict','notified-VCNstrict'].to_set.freeze
+    ZOMBIE_FILES = ['contact.php','wp-signup.php'].freeze
     
     attr_reader :options, :request, :agent
     
     def initialize(app, options={})
       @app, @options = app, {
         :agents => true,
-        :directories => true
+        :directories => true,
+        :files => true
       }.merge(options)
     end
     
@@ -50,7 +52,7 @@ module Rack
     end
 
     def zombie_attack?
-      zombie_dir_attack? || zombie_agent_attack?
+      zombie_dir_attack? || zombie_agent_attack? || zombie_file_attack?
     end
 
     def zombie_dir_attack?
@@ -60,6 +62,11 @@ module Rack
 
     def zombie_agent_attack?
       options[:agents] && agent && ZOMBIE_AGENTS.any? { |za| agent =~ za }
+    end
+    
+    def zombie_file_attack?
+      path = request.path_info
+      options[:files] && ZOMBIE_FILES.any? { |file| path.include?("#{file}") }
     end
     
   end
